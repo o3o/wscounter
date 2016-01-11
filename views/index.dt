@@ -1,0 +1,15 @@
+doctype html
+html
+   head
+      title  WebCounter
+      link(rel='stylesheet', href='/css/main.css')
+      script(src="scripts/websocket.js")
+   body(onload='connect()')
+      h1#name
+      h2 count
+      p#counter
+      h2 temp
+      p#temperature
+      h2 stat
+      p#status.none
+
