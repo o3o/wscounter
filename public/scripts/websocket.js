@@ -1,17 +1,14 @@
 function connect() {
-	socket = new WebSocket(getBaseURL() + "/ws");
+	socket = new WebSocket(getBaseURL() + "/cul");
 
 	socket.onmessage = function(msg) {
       var msgVal = JSON.parse(msg.data);
-
-      var counter = document.getElementById("counter");
-      counter.innerHTML = msgVal.counter;
-
-      var name = document.getElementById("name");
-      name.innerHTML = msgVal.name;
-
-      var temp = document.getElementById("temperature");
-      temp.innerHTML = msgVal.temperature;
+      for (f in msgVal) {
+         var el = document.getElementById(f);
+         if (el != null) {
+            el.innerHTML = msgVal[f];
+         }
+      }
 
       var stat = document.getElementById("status");
       console.log(msgVal.status);

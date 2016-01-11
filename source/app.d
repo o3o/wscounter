@@ -55,7 +55,7 @@ final class Web {
    }
 
    // GET /ws?room=...&name=...
-   void getWS(scope WebSocket socket) {
+   void getCul(scope WebSocket socket) {
       logInfo("WebChat.getWS \t\tstart getWS");
       while (true) {
 			if (!socket.connected) break;
