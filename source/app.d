@@ -36,7 +36,7 @@ final class Controller {
    }
 
    void waitForMessage() {
-      logInfo("wait");
+      logDiagnostic("Controller.waitForMessage");
       messageEvent.wait();
    }
 }
@@ -56,16 +56,16 @@ final class Web {
 
    // GET /ws?room=...&name=...
    void getCul(scope WebSocket socket) {
-      logInfo("WebChat.getWS \t\tstart getWS");
+      logInfo("Web.getWS \t\tstart getWS");
       while (true) {
 			if (!socket.connected) break;
          string json = serializeToJsonString(ctrl.getData);
-         logInfo(json);
+         logDiagnostic(json);
          socket.send(json);
          ctrl.waitForMessage();
-         logInfo("WebChat.end wait");
+         logDiagnostic("WebChat.end wait");
       }
-      logInfo("Client disconnected.");
+      logInfo("Web.getWS \t\tdisconnected.");
    }
 }
 
