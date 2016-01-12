@@ -13,3 +13,6 @@ html
       h2 stat
       p#status.none
 
+      - for (int i = 0; i < 8; ++i)
+         button(onclick='setDgt("#{i}")')set #{i}
+

@@ -1,5 +1,5 @@
 function connect() {
-	socket = new WebSocket(getBaseURL() + "/cul");
+	var socket = new WebSocket(getBaseURL() + "/cul");
 
 	socket.onmessage = function(msg) {
       var msgVal = JSON.parse(msg.data);
@@ -35,6 +35,12 @@ function connect() {
       console.log("socket closed - reconnecting...");
       connect();
    }
+}
+
+function setDgt(i) {
+	var socket = new WebSocket(getBaseURL() + "/dgt");
+   console.log("dgt: " + i);
+   socket.send(i);
 }
 
 function getBaseURL() {

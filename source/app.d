@@ -58,14 +58,37 @@ final class Web {
    void getCul(scope WebSocket socket) {
       logInfo("Web.getWS \t\tstart getWS");
       while (true) {
-			if (!socket.connected) break;
+         if (!socket.connected) break;
          string json = serializeToJsonString(ctrl.getData);
          logDiagnostic(json);
          socket.send(json);
          ctrl.waitForMessage();
          logDiagnostic("WebChat.end wait");
       }
+
+      while (socket.waitForData) {
+         logInfo("wait");
+         auto message = socket.receiveText();
+         if (message.length) {
+            logInfo("Web.waitForData \t\t%s", message);
+         } else {
+            logInfo("no data");
+         }
+      }
       logInfo("Web.getWS \t\tdisconnected.");
+   }
+
+   void getDgt(scope WebSocket socket) {
+      logInfo("Web.getDgt \t\tconnect");
+      while (socket.waitForData(dur!"msecs"(1000))) {
+         auto message = socket.receiveText();
+         if (message.length) {
+            logInfo("Web.waitForData \t\t%s", message);
+         } else {
+            logInfo("no data");
+         }
+      }
+      logInfo("Web.getDgt \t\tdisconnected.");
    }
 }
 
