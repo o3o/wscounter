@@ -56,30 +56,18 @@ final class Web {
 
    void getWS(scope WebSocket socket) {
       logInfo("Web.getWS \t\tstart getWS");
-      auto t = runTask({
-       while (socket.connected) {
+      while (socket.connected) {
+         //logInfo("%s\tWebChat.start wait", Clock.currTime.toSimpleString());
+         ctrl.waitForMessage();
+         logInfo("%s\tWebChat.end wait", Clock.currTime.toSimpleString());
          string json = serializeToJsonString(ctrl.getData);
-         logDiagnostic(json);
          if (!socket.connected) break;
-         try {
-            socket.send(json);
-            ctrl.waitForMessage();
-            logInfo("WebChat.end wait");
-         } catch (Exception e) {
-            logError(e.msg);
-         }
-       }
-         logInfo("WebChat.end WHILE");
-      });
+         socket.send(json);
 
-      while (socket.waitForData) {
-         logInfo("wait");
-         if (!socket.connected) break;
-         auto message = socket.receiveText();
-         if (message.length) {
-            logInfo("Web.waitForData \t\t%s", message);
-         } else {
-            logInfo("no data");
+         while (socket.waitForData(dur!"msecs"(200))) {
+            logInfo("%s\tWeb.waitForData", Clock.currTime.toSimpleString());
+            auto message = socket.receiveText();
+            logInfo("%s\tWeb.receiveText %s", Clock.currTime.toSimpleString(), message);
          }
       }
       logInfo("Web.getWS \t\tdisconnected.");
