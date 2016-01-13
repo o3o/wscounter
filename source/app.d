@@ -64,7 +64,6 @@ final class Web {
          logInfo("\tserialize");
          string json = serializeToJsonString(ctrl.getData);
          logDiagnostic(json);
-         if (!socket.connected) break;
          try {
             logInfo("s0");
             socket.send(json);
@@ -75,24 +74,48 @@ final class Web {
             logError(e.msg);
          }
        }
-         logInfo("WebChat.end WHILE");
+       logInfo("WebChat.end WHILE");
       });
 
       logInfo("wait for data");
-      if (socket.connected) {
-         logInfo("connected");
-         while (socket.waitForData) {
-            logInfo("wait");
-            if (!socket.connected) break;
-            auto message = socket.receiveText();
-            if (message.length) {
-               logInfo("Web.waitForData \t\t%s", message);
-            } else {
-               logInfo("no data");
-            }
+      while (socket.waitForData) {
+         logInfo("wait");
+         if (!socket.connected) break;
+         auto message = socket.receiveText();
+         if (message.length) {
+            logInfo(message);
+            parseAction(message);
+         } else {
+            logInfo("no data");
          }
       }
+      t.join();
+
       logInfo("Web.getWS \t\tdisconnected.");
+   }
+
+   private void parseAction(string json) {
+      import std.json;
+      try {
+         JSONValue j = parseJSON(json);
+         switch (j["action"].str) {
+            case "setTray":
+               long t = j["tray"].integer;
+               logInfo("change tray %d", t);
+               break;
+            case "setDgtOut":
+               long o = j["out"].integer;
+               logInfo("set do %d", o);
+               break;
+            case "start":
+               logInfo("start");
+               break;
+            default:
+               logWarn("unknow");
+         }
+      } catch (Exception e) {
+         logError(e.msg);
+      }
    }
 }
 
@@ -110,11 +133,11 @@ shared static this() {
    settings.bindAddresses = ["::1", "127.0.0.1"];
    listenHTTP(settings, router);
    auto reader = runTask(() {
-      logInfo("Start tasks");
-      while (true) {
+         logInfo("Start tasks");
+         while (true) {
          ctrl.update();
          sleep(2000.msecs);
-      }
-   });
+         }
+         });
    logInfo("Please open http://127.0.0.1:8080/ in your browser.");
 }

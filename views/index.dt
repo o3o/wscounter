@@ -16,3 +16,8 @@ html
       - for (int i = 0; i < 8; ++i)
          button(onclick='setDgt(#{i})')set #{i}
 
+      button(onclick='start()')start
+
+      - for (int i = 0; i < 8; ++i)
+         button(onclick='setTray(#{i})')set tray#{i}
+

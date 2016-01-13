@@ -1,9 +1,21 @@
+function start() {
+   var msg = '{"action":"start"}';
+   socket.send(msg);
+   return false;
+}
 
+function setTray(i) {
+   var msg = '{"action":"setTray", "tray": '+ i + '}';
+   socket.send(msg);
+   return false;
+}
 
 function setDgt(i) {
 	//var socket = new WebSocket(getBaseURL() + "/dgt");
    console.log("dgt: " + i);
-   socket.send(i);
+   var msg = '{"action":"setDgtOut", "out": '+ i + '}';
+   console.log(msg);
+   socket.send(msg);
    return false;
 }
 
@@ -42,7 +54,7 @@ function connect() {
 
    socket.onclose = function() {
       console.log("socket closed - reconnecting...");
-      //connect();
+      connect();
    }
 }
 
