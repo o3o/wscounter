@@ -42,7 +42,7 @@ function connect() {
 
    socket.onclose = function() {
       console.log("socket closed - reconnecting...");
-      connect();
+      //connect();
    }
 }
 

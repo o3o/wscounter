@@ -54,17 +54,23 @@ final class Web {
       render!("index.dt", counter);
    }
 
+   //http://dlang.org/spec/function.html#parameters
+   // scope:	references in the parameter cannot be escaped (e.g. assigned to a global variable)
+
    void getWS(scope WebSocket socket) {
-      logInfo("Web.getWS \t\tstart getWS");
+      logInfo("getWS");
       auto t = runTask({
        while (socket.connected) {
+         logInfo("\tserialize");
          string json = serializeToJsonString(ctrl.getData);
          logDiagnostic(json);
          if (!socket.connected) break;
          try {
+            logInfo("s0");
             socket.send(json);
+            logInfo("s1");
             ctrl.waitForMessage();
-            logInfo("WebChat.end wait");
+            logInfo("s2");
          } catch (Exception e) {
             logError(e.msg);
          }
@@ -72,14 +78,18 @@ final class Web {
          logInfo("WebChat.end WHILE");
       });
 
-      while (socket.waitForData) {
-         logInfo("wait");
-         if (!socket.connected) break;
-         auto message = socket.receiveText();
-         if (message.length) {
-            logInfo("Web.waitForData \t\t%s", message);
-         } else {
-            logInfo("no data");
+      logInfo("wait for data");
+      if (socket.connected) {
+         logInfo("connected");
+         while (socket.waitForData) {
+            logInfo("wait");
+            if (!socket.connected) break;
+            auto message = socket.receiveText();
+            if (message.length) {
+               logInfo("Web.waitForData \t\t%s", message);
+            } else {
+               logInfo("no data");
+            }
          }
       }
       logInfo("Web.getWS \t\tdisconnected.");
@@ -103,7 +113,7 @@ shared static this() {
       logInfo("Start tasks");
       while (true) {
          ctrl.update();
-         sleep(4000.msecs);
+         sleep(2000.msecs);
       }
    });
    logInfo("Please open http://127.0.0.1:8080/ in your browser.");
