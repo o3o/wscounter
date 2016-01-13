@@ -54,20 +54,27 @@ final class Web {
       render!("index.dt", counter);
    }
 
-   // GET /ws?room=...&name=...
-   void getCul(scope WebSocket socket) {
+   void getWS(scope WebSocket socket) {
       logInfo("Web.getWS \t\tstart getWS");
-      while (true) {
-         if (!socket.connected) break;
+      auto t = runTask({
+       while (socket.connected) {
          string json = serializeToJsonString(ctrl.getData);
          logDiagnostic(json);
-         socket.send(json);
-         ctrl.waitForMessage();
-         logDiagnostic("WebChat.end wait");
-      }
+         if (!socket.connected) break;
+         try {
+            socket.send(json);
+            ctrl.waitForMessage();
+            logInfo("WebChat.end wait");
+         } catch (Exception e) {
+            logError(e.msg);
+         }
+       }
+         logInfo("WebChat.end WHILE");
+      });
 
       while (socket.waitForData) {
          logInfo("wait");
+         if (!socket.connected) break;
          auto message = socket.receiveText();
          if (message.length) {
             logInfo("Web.waitForData \t\t%s", message);
@@ -76,19 +83,6 @@ final class Web {
          }
       }
       logInfo("Web.getWS \t\tdisconnected.");
-   }
-
-   void getDgt(scope WebSocket socket) {
-      logInfo("Web.getDgt \t\tconnect");
-      while (socket.waitForData(dur!"msecs"(1000))) {
-         auto message = socket.receiveText();
-         if (message.length) {
-            logInfo("Web.waitForData \t\t%s", message);
-         } else {
-            logInfo("no data");
-         }
-      }
-      logInfo("Web.getDgt \t\tdisconnected.");
    }
 }
 
@@ -106,11 +100,11 @@ shared static this() {
    settings.bindAddresses = ["::1", "127.0.0.1"];
    listenHTTP(settings, router);
    auto reader = runTask(() {
-         logInfo("Start tasks");
-         while (true) {
+      logInfo("Start tasks");
+      while (true) {
          ctrl.update();
          sleep(4000.msecs);
-         }
-         });
+      }
+   });
    logInfo("Please open http://127.0.0.1:8080/ in your browser.");
 }

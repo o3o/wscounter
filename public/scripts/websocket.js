@@ -1,5 +1,14 @@
+
+
+function setDgt(i) {
+	//var socket = new WebSocket(getBaseURL() + "/dgt");
+   console.log("dgt: " + i);
+   socket.send(i);
+   return false;
+}
+
 function connect() {
-	var socket = new WebSocket(getBaseURL() + "/cul");
+	socket = new WebSocket(getBaseURL() + "/ws");
 
 	socket.onmessage = function(msg) {
       var msgVal = JSON.parse(msg.data);
@@ -37,11 +46,6 @@ function connect() {
    }
 }
 
-function setDgt(i) {
-	var socket = new WebSocket(getBaseURL() + "/dgt");
-   console.log("dgt: " + i);
-   socket.send(i);
-}
 
 function getBaseURL() {
    var href = window.location.href.substring(7); // strip "http://"
