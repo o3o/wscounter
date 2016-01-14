@@ -8,12 +8,17 @@ enum Status {
    run,
    stop
 }
+
 struct Data {
    int counter;
    string name;
    Status status;
    double temperature;
    bool enabled;
+}
+
+struct Data2 {
+   int x;
 }
 
 final class Controller {
@@ -26,12 +31,17 @@ final class Controller {
    Data getData() {
       return data;
    }
+   Data2 data2;
+   Data2 getData2() {
+      return data2;
+   }
 
    void update() {
       data.counter++;
       data.name = "name " ~ to!string(uniform(1, 10));
       data.status = uniform!Status;
       data.temperature = uniform(0, 100);
+      data2.x = uniform(0, 1000);
       messageEvent.emit();
    }
 
@@ -54,23 +64,44 @@ final class Web {
       render!("index.dt", counter);
    }
 
+   void getCount() {
+      int counter = ctrl.getData().counter;
+      logInfo("Web.get counter: %d", counter);
+      render!("count.dt", counter);
+   }
+
    void getWS(scope WebSocket socket) {
-      logInfo("Web.getWS \t\tstart getWS");
+      logInfo("getWS \t\tconnected");
       while (socket.connected) {
          //logInfo("%s\tWebChat.start wait", Clock.currTime.toSimpleString());
          ctrl.waitForMessage();
-         logInfo("%s\tWebChat.end wait", Clock.currTime.toSimpleString());
+         logInfo("%s\tWeb.end wait", Clock.currTime.toSimpleString());
          string json = serializeToJsonString(ctrl.getData);
-         if (!socket.connected) break;
          socket.send(json);
-
-         while (socket.waitForData(dur!"msecs"(200))) {
-            logInfo("%s\tWeb.waitForData", Clock.currTime.toSimpleString());
-            auto message = socket.receiveText();
-            logInfo("%s\tWeb.receiveText %s", Clock.currTime.toSimpleString(), message);
-         }
       }
-      logInfo("Web.getWS \t\tdisconnected.");
+
+      logInfo("getWS disconnected.");
+   }
+
+   void getCul(scope WebSocket socket) {
+      logInfo("getWS2 \t\tconnected");
+      while (socket.connected) {
+         //logInfo("%s\tWebChat.start wait", Clock.currTime.toSimpleString());
+         ctrl.waitForMessage();
+         string json = serializeToJsonString(ctrl.getData2);
+         socket.send(json);
+      }
+
+      logInfo("getWS2 disconnected.");
+   }
+
+   void getAction(scope WebSocket socket) {
+      logInfo("\tgetAction connected ");
+      while (socket.waitForData()) {
+         auto message = socket.receiveText();
+         logInfo("\t%s\treceiveText %s", Clock.currTime.toSimpleString(), message);
+      }
+      logInfo("\tgetAction disconnected.");
    }
 }
 
@@ -88,11 +119,11 @@ shared static this() {
    settings.bindAddresses = ["::1", "127.0.0.1"];
    listenHTTP(settings, router);
    auto reader = runTask(() {
-      logInfo("Start tasks");
-      while (true) {
+         logInfo("Start tasks");
+         while (true) {
          ctrl.update();
-         sleep(4000.msecs);
-      }
-   });
+         sleep(2000.msecs);
+         }
+         });
    logInfo("Please open http://127.0.0.1:8080/ in your browser.");
 }

@@ -1,23 +1,16 @@
 doctype html
 html
    head
-      title  WebCounter Data
+      title  WebCounter Count
       link(rel='stylesheet', href='/css/main.css')
       script(src="scripts/websocket.js")
-   body(onload='connect()')
-      h1#name
+   body(onload='connect2()')
+      h1#x
       h2 count
       p#counter
-      h2 temp
-      p#temperature
-      h2 stat
-      p#status.none
-
       - for (int i = 0; i < 8; ++i)
          button(onclick='setDgt(#{i})')set #{i}
 
       p
          button(onclick='start()')start
-      p
-         a(href='/count') count
 

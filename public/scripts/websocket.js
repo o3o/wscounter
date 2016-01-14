@@ -1,16 +1,41 @@
+var socket = {};
+var actionSock = {};
 
-
-function setDgt(i) {
-	//var socket = new WebSocket(getBaseURL() + "/dgt");
-   console.log("dgt: " + i);
-   socket.send(i);
+function start() {
+   console.log("start");
+   actionSocket.send("start");
    return false;
 }
 
-function connect() {
-	socket = new WebSocket(getBaseURL() + "/ws");
+function setDgt(i) {
+   console.log("dgt: " + i);
+   actionSocket.send(i);
+   return false;
+}
 
-	socket.onmessage = function(msg) {
+function connect2() {
+   actionSocket = new WebSocket(getBaseURL() + '/action');
+   socket2 = new WebSocket(getBaseURL() + "/cul");
+   socket2.onmessage = function(msg) {
+      var msgVal = JSON.parse(msg.data);
+      for (f in msgVal) {
+         var el = document.getElementById(f);
+         if (el != null) {
+            el.innerHTML = msgVal[f];
+         }
+      }
+   }
+   socket2.onclose = function() {
+      console.log("socket closed - reconnecting...");
+      connect2();
+   }
+}
+
+function connect() {
+   actionSocket = new WebSocket(getBaseURL() + '/action');
+   socket = new WebSocket(getBaseURL() + "/ws");
+
+   socket.onmessage = function(msg) {
       var msgVal = JSON.parse(msg.data);
       for (f in msgVal) {
          var el = document.getElementById(f);
